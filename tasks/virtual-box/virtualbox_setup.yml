@@ -1,0 +1,28 @@
+---
+
+- name: Add VirtualBox APT SigningKey
+  ansible.builtin.apt_key:
+    url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+    state: present
+
+- name: Add VirtualBox repository into sources list
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bullseye contrib
+    state: present
+
+- name: Install VM packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "virtualbox-{{ vbox.version }}"
+
+- name: Download VirtualBox Extension Pack
+  ansible.builtin.get_url:
+    url: "{{ vbox.extPackUrl }}/{{ vbox.extPackName }}"
+    dest: /tmp/{{ vbox.extPackName }}
+    mode: '0440'
+
+- name: Install Extension Pack
+  ansible.builtin.command: VBoxManage extpack install /tmp/{{ vbox.extPackName }} --accept-license={{ vbox.extPackLicenseHash }}
+  ignore_errors: yes

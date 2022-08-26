@@ -1,0 +1,6 @@
+---
+- name: Configure Virtual Machines
+  include_tasks: tasks/virtual-box/virtual_machine.yml
+  loop: "{{ vms }}"
+  loop_control:
+    loop_var: vm

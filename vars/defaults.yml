@@ -1,0 +1,26 @@
+vbox:
+  version: 6.1
+  extPackUrl: https://download.virtualbox.org/virtualbox/6.1.36
+  extPackName: Oracle_VM_VirtualBox_Extension_Pack-6.1.36a-152435.vbox-extpack
+  extPackLicenseHash: 33d7284dc4a0ece381196fda3cfe2ed0e1e8e7ed7f27b9a9ebc4ee22e24bd23c
+
+
+##### SERVER SPECIFICS:
+
+sudo_users: []
+  # - 'myUser'
+
+vms: []
+  # - name: server1
+  #   memory: 4096
+  #   gpu_memory: 128
+  #   hard_drive_path: /path/to/disk.vhd
+  #   baseDirectory: /path/to/virtual-machines/
+
+trustRelationships: []
+  # - 'my/keepass/entry/path'
+
+storage_backups: []
+  # - source: 'folder/subfolder/key_name'
+  #   remoteDirectory: /path/to/directory/mirrored
+

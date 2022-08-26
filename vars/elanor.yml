@@ -1,0 +1,26 @@
+sudo_users:
+  - hobart
+
+vms:
+  - name: server1
+    memory: 4096
+    gpu_memory: 128
+    hard_drive_path: /data/server1.vhd
+    baseDirectory: /data/virtual-machines/
+
+trustRelationships:
+  - 'Servers/tharja/main'
+
+storage_backups:
+  - name: VirtualHostsFilesBackup
+    source: 'Servers/tharja/main'
+    remoteDirectory: /storage/vhosts/
+    target: /backups/tharja/storage/vhosts
+    exclude:
+      - 'minecraft'
+      - 'exchange'
+      - 'node_modules'
+      - 'pnTemp'
+      - 'logs'
+      - 'apps'
+

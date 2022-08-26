@@ -1,0 +1,33 @@
+---
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - sshpass
+
+- name: Allow 'sudo' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+
+- name: Add sudoers users to wheel group
+  user:
+    name={{item}}
+    groups=sudo
+    append=yes
+    state=present
+    createhome=yes
+  loop: "{{ sudo_users }}"
+
+- name: Check if key exists
+  stat:
+    path: "/root/.ssh/id_ed25519"
+  register: key_file
+
+- name: Create SSH Key
+  ansible.builtin.command: ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N ''
+  when: key_file.stat.exists == False

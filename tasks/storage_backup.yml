@@ -1,0 +1,23 @@
+- name: Retrieve access data
+  set_fact:
+    user: "{{ lookup('viczem.keepass.keepass', backup.source, 'username') }}"
+    password: "{{ lookup('viczem.keepass.keepass', backup.source, 'password') }}"
+    host: "{{ lookup('viczem.keepass.keepass', backup.source, 'custom_properties', 'Hostname') }}"
+
+- name: Concatenate the public keys
+  set_fact:
+    exclusions: "{{ ['--exclude='] | product(backup.exclude) | map('join') | list | join(' ') }}"
+
+- ansible.builtin.debug:
+    msg: "{{ exclusions }}"
+
+- name: Create backup target directory
+  file:
+    path: "{{ backup.target }}"
+    state: directory
+
+- name: Create Backup job
+  ansible.builtin.cron:
+    name: "Backup storage {{ backup.remoteDirectory }}"
+    special_time: reboot
+    job: "screen -admS {{ backup.name }} rsync -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/{{ backup.name }}.log"

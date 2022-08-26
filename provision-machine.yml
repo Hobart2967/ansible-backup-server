@@ -1,0 +1,40 @@
+---
+
+
+- hosts: all
+  become: true
+  become_method: su
+
+  vars_files:
+    - vars/defaults.yml
+    - vars/{{ machine }}.yml
+
+  vars_prompt:
+    - name: keepass_psw
+      prompt: "Enter keepass database password"
+      private: yes
+
+  tasks:
+    - name: Execute Install
+      include_tasks: tasks/install.yml
+
+    - name: Configure Security
+      include_tasks: tasks/security.yml
+
+    - name: Configure Trust Relationships
+      include_tasks: tasks/trust-relationship.yml
+      loop: "{{ trustRelationships }}"
+      loop_control:
+        loop_var: relationship
+
+    - name: Configure Storage Backups
+      include_tasks: tasks/storage_backup.yml
+      loop: "{{ storage_backups }}"
+      loop_control:
+        loop_var: backup
+
+    - name: Configure VirtualBox
+      include_tasks: tasks/virtual-box/virtualbox_setup.yml
+
+    - name: Configure VMs
+      include_tasks: tasks/virtual-box/virtual_machines.yml

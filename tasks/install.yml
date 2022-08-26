@@ -1,0 +1,17 @@
+---
+- name: Install basic packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - htop
+    - iftop
+    - powertop
+    - mc
+    - nano
+    - sudo
+    - gnupg
+    - ntfs-3g
+    - rsync
+    - screen
+    - net-tools
