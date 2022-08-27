@@ -19,4 +19,5 @@
     - sshpass
     - wget
     - curl
+    - iptables
     - fail2ban
