@@ -13,29 +13,29 @@
   ansible.builtin.command: VBoxManage createvm --name "{{ vm.name }}" --ostype "Windows2008_64" --register
   when: vm_directory_exists.stat.exists == False
 
-- name: Reset Virtual Machines Folder to default
+- name: "{{ vm.name }}: Reset Virtual Machines Folder to default"
   ansible.builtin.command: VBoxManage setproperty machinefolder default
   when: vm_directory_exists.stat.exists == False
 
-- name: Add SATA Controller
+- name: "{{ vm.name }}: Add SATA Controller"
   ansible.builtin.command: VBoxManage storagectl "{{ vm.name }}" --name "SATA Controller" --add sata --controller IntelAHCI
   when: vm_directory_exists.stat.exists == False
 
-- name: Attach HardDrive
+- name: "{{ vm.name }}: Attach HardDrive"
   ansible.builtin.command: VBoxManage storageattach "{{ vm.name }}" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium {{ vm.hard_drive_path }}
   when: vm_directory_exists.stat.exists == False
 
-- name: Enable IOAPIC
+- name: "{{ vm.name }}: Enable IOAPIC"
   ansible.builtin.command: VBoxManage modifyvm "{{ vm.name }}" --ioapic on
 
-- name: Set Boot Order
+- name: "{{ vm.name }}: Set Boot Order"
   ansible.builtin.command: VBoxManage modifyvm "{{ vm.name }}" --boot1 dvd --boot2 disk --boot3 none --boot4 none
 
-- name: Set Memory
+- name: "{{ vm.name }}: Set Memory"
   ansible.builtin.command: VBoxManage modifyvm "{{ vm.name }}" --memory {{ vm.memory }} --vram {{ vm.gpu_memory }}
 
-- name: Configure Networking
+- name: "{{ vm.name }}: Configure Networking"
   ansible.builtin.command: VBoxManage modifyvm "{{ vm.name }}" --nic1 bridged --bridgeadapter1 {{ ansible_default_ipv4.interface }}
 
-- name: Enable RDP
+- name: "{{ vm.name }}: Enable RDP"
   ansible.builtin.command: VBoxManage modifyvm "{{ vm.name }}" --vrde on
