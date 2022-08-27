@@ -1,0 +1,10 @@
+- name: Configure Fail2ban
+  ansible.builtin.template:
+    src: templates/etc/fail2ban/jail.conf.j2
+    dest: /etc/fail2ban/jail.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: (Re)Start Fail2Ban
+  ansible.builtin.command: /usr/sbin/service fail2ban restart

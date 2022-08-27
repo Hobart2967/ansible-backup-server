@@ -6,6 +6,10 @@ vbox:
 
 ##### SERVER SPECIFICS:
 security:
+  fail2ban:
+    maxretry: 3
+    bantime: 12h
+
   firewall:
     tcp:
       in:

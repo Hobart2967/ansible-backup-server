@@ -4,3 +4,5 @@
   include_tasks: tasks/security/ssh-keys.yml
 - name: Configure Firewall
   include_tasks: tasks/security/firewall.yml
+- name: Configure Fail2ban
+  include_tasks: tasks/security/fail2ban.yml
