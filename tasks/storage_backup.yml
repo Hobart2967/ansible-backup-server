@@ -20,4 +20,4 @@
   ansible.builtin.cron:
     name: "Backup storage {{ backup.remoteDirectory }}"
     special_time: reboot
-    job: "screen -admS {{ backup.name }} rsync -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/{{ backup.name }}.log"
+    job: "screen -admS {{ backup.name }} rsync --bwlimit=2560 -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/{{ backup.name }}.log"
