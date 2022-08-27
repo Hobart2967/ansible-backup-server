@@ -27,6 +27,9 @@ security:
         - 21
         - 53
 
+mailserver:
+  active: false
+  relay_info: 'my/keepass/entry/path'
 
 sudo_users: []
   # - 'myUser'

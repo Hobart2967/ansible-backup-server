@@ -8,6 +8,10 @@ vms:
     hard_drive_path: /data/server1.vhd
     baseDirectory: /data/virtual-machines/
 
+mailserver:
+  active: true
+  relay_info: 'Servers/elanor/MailRelay'
+
 trustRelationships:
   - 'Servers/tharja/main'
 

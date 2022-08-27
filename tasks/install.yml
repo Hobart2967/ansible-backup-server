@@ -21,3 +21,6 @@
     - curl
     - iptables
     - fail2ban
+    - sendmail
+    - mailutils
+    - postfix

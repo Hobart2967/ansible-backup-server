@@ -47,3 +47,6 @@
 
     - name: Configure VirtualBox and Machines
       include_tasks: tasks/virtual-box/_virtual-box.yml
+
+    - name: Configure Mail Relay
+      include_tasks: tasks/mail/postfix.yml
