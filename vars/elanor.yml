@@ -8,6 +8,31 @@ vms:
     hard_drive_path: /data/server1.vhd
     baseDirectory: /data/virtual-machines/
 
+security:
+  fail2ban:
+    maxretry: 3
+    bantime: 12h
+    report:
+      active: true
+      data: 'Servers/elanor/Fail2Ban: Reporting Target'
+
+  firewall:
+    tcp:
+      in:
+        - 22
+      out:
+        - 21
+        - 25
+        - 80
+        - 443
+        - 43
+    udp:
+      in: []
+      out:
+        - 20
+        - 21
+        - 53
+
 mailserver:
   active: true
   relay_info: 'Servers/elanor/MailRelay'

@@ -1,3 +1,17 @@
+- name: Retrieve access data
+  set_fact:
+    fail2ban_report:
+      sender_email: "{{ lookup('viczem.keepass.keepass', security.fail2ban.report.data, 'custom_properties', 'Sender') }}"
+      destination_email: "{{ lookup('viczem.keepass.keepass', security.fail2ban.report.data, 'custom_properties', 'Destination') }}"
+  when: security.fail2ban.report.active == True
+
+- name: Retrieve access data
+  set_fact:
+    fail2ban_report:
+      sender_email: "root@<fq-hostname>"
+      destination_email: "root@localhost"
+  when: security.fail2ban.report.active == False
+
 - name: Configure Fail2ban
   ansible.builtin.template:
     src: templates/etc/fail2ban/jail.conf.j2

@@ -9,6 +9,9 @@ security:
   fail2ban:
     maxretry: 3
     bantime: 12h
+    report:
+      active: false
+      data: 'my/keepass/entry/path'
 
   firewall:
     tcp:
