@@ -19,7 +19,7 @@
       include_tasks: tasks/install.yml
 
     - name: Configure Security
-      include_tasks: tasks/security.yml
+      include_tasks: tasks/security/_security.yml
 
     - name: Configure Trust Relationships
       include_tasks: tasks/trust-relationship.yml
@@ -27,14 +27,23 @@
       loop_control:
         loop_var: relationship
 
+    - name: Initialize backup jobs
+      set_fact:
+        backup_jobs: []
+
     - name: Configure Storage Backups
       include_tasks: tasks/storage_backup.yml
       loop: "{{ storage_backups }}"
       loop_control:
         loop_var: backup
 
-    - name: Configure VirtualBox
-      include_tasks: tasks/virtual-box/virtualbox_setup.yml
+    - name: Register Storage Backups
+      ansible.builtin.template:
+        src: templates/etc/anacrontab.j2
+        dest: /etc/anacrontab
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
 
-    - name: Configure VMs
-      include_tasks: tasks/virtual-box/virtual_machines.yml
+    - name: Configure VirtualBox and Machines
+      include_tasks: tasks/virtual-box/_virtual-box.yml

@@ -1,0 +1,41 @@
+- name: Download latest APF version
+  ansible.builtin.get_url:
+    url: "http://rfxnetworks.com/downloads/apf-current.tar.gz"
+    dest: /tmp/apf.tar.gz
+    mode: '0440'
+
+- name: Recursively remove directory
+  ansible.builtin.file:
+    path: /tmp/apf
+    state: absent
+
+- name: Create extraction target directory
+  ansible.builtin.file:
+    path: /tmp/apf
+    state: directory
+    mode: '0755'
+
+- name: Extract latest APF version
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: /tmp/apf.tar.gz
+    dest: /tmp/apf
+
+- shell: ls -d /tmp/apf/apf-*
+  register: dir_name
+
+- name: Install latest APF version
+  ansible.builtin.command:
+    chdir: "{{ dir_name.stdout }}"
+    cmd: ./install.sh
+
+- name: Configure APF
+  ansible.builtin.template:
+    src: templates/etc/apf/conf.apf.j2
+    dest: /etc/apf/conf.apf
+    owner: root
+    group: root
+    mode: u=rw,g=r
+
+- name: (Re)Start APF
+  ansible.builtin.command: /usr/local/sbin/apf --restart

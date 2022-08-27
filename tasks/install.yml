@@ -15,3 +15,7 @@
     - rsync
     - screen
     - net-tools
+    - anacron
+    - sshpass
+    - wget
+    - curl

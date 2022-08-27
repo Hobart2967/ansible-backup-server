@@ -8,16 +8,23 @@
   set_fact:
     exclusions: "{{ ['--exclude='] | product(backup.exclude) | map('join') | list | join(' ') }}"
 
-- ansible.builtin.debug:
-    msg: "{{ exclusions }}"
-
 - name: Create backup target directory
   file:
     path: "{{ backup.target }}"
     state: directory
 
-- name: Create Backup job
-  ansible.builtin.cron:
-    name: "Backup storage {{ backup.remoteDirectory }}"
-    special_time: reboot
-    job: "screen -admS {{ backup.name }} rsync --bwlimit=2560 -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/{{ backup.name }}.log"
+#- name: Create Backup job
+#  ansible.builtin.cron:
+#    name: "Backup storage {{ backup.remoteDirectory }}"
+#    special_time: reboot
+#    job: "rsync --bwlimit=2560 -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/{{ backup.name }}.log"
+
+- name: Register backup job
+  set_fact:
+    new_backup_jobs:
+      - command: rsync --bwlimit=2560 -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/{{ backup.name }}.log
+        name: "{{ backup.name }}"
+
+- name: Save jobs
+  set_fact:
+    backup_jobs: "{{ backup_jobs + new_backup_jobs }}"

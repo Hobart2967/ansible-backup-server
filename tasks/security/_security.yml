@@ -1,0 +1,6 @@
+- name: Configure Users and Sudo permissions
+  include_tasks: tasks/security/user-management.yml
+- name: Configure SSH Keys
+  include_tasks: tasks/security/ssh-keys.yml
+- name: Configure Firewall
+  include_tasks: tasks/security/firewall.yml

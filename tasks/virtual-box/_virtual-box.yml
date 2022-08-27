@@ -1,0 +1,6 @@
+---
+- name: Configure VirtualBox
+  include_tasks: tasks/virtual-box/virtualbox_setup.yml
+
+- name: Configure VMs
+  include_tasks: tasks/virtual-box/virtual_machines.yml

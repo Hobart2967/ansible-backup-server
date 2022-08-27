@@ -4,8 +4,25 @@ vbox:
   extPackName: Oracle_VM_VirtualBox_Extension_Pack-6.1.36a-152435.vbox-extpack
   extPackLicenseHash: 33d7284dc4a0ece381196fda3cfe2ed0e1e8e7ed7f27b9a9ebc4ee22e24bd23c
 
-
 ##### SERVER SPECIFICS:
+security:
+  firewall:
+    tcp:
+      in:
+        - 22
+      out:
+        - 21
+        - 25
+        - 80
+        - 443
+        - 43
+    udp:
+      in: []
+      out:
+        - 20
+        - 21
+        - 53
+
 
 sudo_users: []
   # - 'myUser'
