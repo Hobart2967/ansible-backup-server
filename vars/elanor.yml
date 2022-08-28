@@ -44,7 +44,7 @@ storage_backups:
   - name: VirtualHostsFilesBackup
     source: 'Servers/tharja/main'
     remoteDirectory: /storage/vhosts/
-    target: /backups/tharja/storage/vhosts
+    target: /backups/tharja/fs/storage/vhosts
     exclude:
       - 'minecraft'
       - 'exchange'
