@@ -37,13 +37,46 @@
       loop_control:
         loop_var: backup
 
+    - name: Create backup target directory
+      file:
+        path: "/backups/bin"
+        state: directory
+
+    - name: Create backup target directory
+      file:
+        path: "/backups/logs"
+        state: directory
+
+    - name: Register Storage Backup Scripts
+      ansible.builtin.template:
+        src: templates/backups/bin/backup.sh.j2
+        dest: /backups/bin/{{ backup.name }}.sh
+        owner: root
+        group: root
+        mode: u=rwx,g=r,o=r
+      loop: "{{ backup_jobs }}"
+      loop_control:
+        loop_var: backup
+
     - name: Register Storage Backups
       ansible.builtin.template:
-        src: templates/etc/anacrontab.j2
-        dest: /etc/anacrontab
+        src: templates/etc/systemd/system/backup.service.j2
+        dest: /etc/systemd/system/backup-{{ backup.name }}.service
         owner: root
         group: root
         mode: u=rw,g=r,o=r
+      loop: "{{ backup_jobs }}"
+      loop_control:
+        loop_var: backup
+
+    - name: Enable backup for autostart
+      ansible.builtin.command: systemctl enable backup-{{ backup.name }}
+      loop: "{{ backup_jobs }}"
+      loop_control:
+        loop_var: backup
+
+    - name: Restart System Daemon
+      ansible.builtin.command: systemctl daemon-reload
 
     - name: Configure VirtualBox and Machines
       include_tasks: tasks/virtual-box/_virtual-box.yml

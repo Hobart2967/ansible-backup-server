@@ -1,0 +1,11 @@
+#!/bin/sh
+main() {
+  if [ -z "$IS_SYSTEMD" ]; then
+    echo "Usage: service {{ backup.name }} start"
+    return;
+  fi
+
+  {{ backup.command }}
+}
+
+main
