@@ -66,7 +66,8 @@ backups:
       source: 'Servers/tharja/main'
       remoteDirectory: /storage/tools/
       target: /backups/tharja/fs/storage/tools
-      exclude: []
+      exclude:
+        - '.train-spam'
     - name: VirtualHostsFilesBackup
       source: 'Servers/tharja/main'
       remoteDirectory: /storage/vhosts/
