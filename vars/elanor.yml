@@ -49,10 +49,12 @@ storage_backups:
     source: 'Servers/tharja/main'
     remoteDirectory: /storage/plesk/
     target: /backups/tharja/fs/storage/plesk
+    exclude: []
   - name: Tools
     source: 'Servers/tharja/main'
     remoteDirectory: /storage/tools/
     target: /backups/tharja/fs/storage/tools
+    exclude: []
   - name: VirtualHostsFilesBackup
     source: 'Servers/tharja/main'
     remoteDirectory: /storage/vhosts/
