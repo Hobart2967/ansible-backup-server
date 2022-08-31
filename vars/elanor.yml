@@ -45,15 +45,20 @@ trustRelationships:
   - 'Servers/tharja/main'
 
 storage_backups:
+  - name: PleskBackups
+    source: 'Servers/tharja/main'
+    remoteDirectory: /storage/plesk/
+    target: /backups/tharja/fs/storage/plesk
+  - name: Tools
+    source: 'Servers/tharja/main'
+    remoteDirectory: /storage/tools/
+    target: /backups/tharja/fs/storage/tools
   - name: VirtualHostsFilesBackup
     source: 'Servers/tharja/main'
     remoteDirectory: /storage/vhosts/
     target: /backups/tharja/fs/storage/vhosts
     exclude:
-      - 'minecraft'
       - 'exchange'
       - 'node_modules'
       - 'pnTemp'
       - 'logs'
-      - 'apps'
-
