@@ -16,7 +16,7 @@
 - name: Register backup job
   set_fact:
     new_backup_jobs:
-      - command: rsync --bwlimit=2560 -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/logs/{{ backup.name }}.log
+      - command: rsync --bwlimit=2560 --delete -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/logs/{{ backup.name }}.log
         description: "Storage backup {{ backup.name }}"
         name: "{{ backup.name }}"
 
