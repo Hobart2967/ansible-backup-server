@@ -1,0 +1,14 @@
+---
+- name: Create Blacklist refresh script
+  ansible.builtin.template:
+    src: templates/etc/fail2ban/refresh-blacklist.sh.j2
+    dest: /etc/fail2ban/refresh-blacklist.sh
+    owner: root
+    group: root
+    mode: u=rwx,g=r,o=r
+
+- name: Register and Acquire Blacklist
+  include_tasks: tasks/security/fail2ban_blocklist_element.yml
+  loop: "{{ security.fail2ban.blocklists }}"
+  loop_control:
+    loop_var: blocklist

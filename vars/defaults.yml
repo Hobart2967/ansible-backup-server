@@ -8,7 +8,11 @@ vbox:
 security:
   fail2ban:
     maxretry: 3
-    bantime: 12h
+    bantime: 43200
+    blocklists:
+      - type: ssh
+        port: ssh
+        filter: sshd
     report:
       active: false
       data: 'my/keepass/entry/path'

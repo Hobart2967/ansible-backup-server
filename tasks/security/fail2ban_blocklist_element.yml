@@ -1,0 +1,28 @@
+---
+- name: Register "{{ blocklist.type }}" Blacklist
+  ansible.builtin.blockinfile:
+    path: /etc/fail2ban/jail.conf
+    block: |
+      [{{ blocklist.type }}-blacklist]
+      enabled = true
+      port = {{ blocklist.port }}
+      filter = {{ blocklist.filter }}
+      logpath = /var/log/blacklist-{{ blocklist.type }}.log
+      maxretry = 1
+      bantime = 86400
+      action = %(action_)s
+
+- name: Touch Log File for "{{ blocklist.type }}" Blacklist
+  file:
+    path: "/var/log/blacklist-{{ blocklist.type }}.log"
+    state: touch
+    mode: '0644'
+
+- name: (Re)Start Fail2Ban to get a handle to the "{{ blocklist.type }}" blocklist
+  ansible.builtin.command: /usr/sbin/service fail2ban restart
+
+- name: Register crontab entry for refreshing the "{{ blocklist.type }}" blocklist
+  ansible.builtin.cron:
+    name: "refresh-{{ blocklist.type }}-blacklist"
+    minute: "0"
+    job: "/etc/fail2ban/refresh-blacklist.sh {{ blocklist.type }} {{ blocklist.type }}-blacklist {{ security.fail2ban.bantime }}"

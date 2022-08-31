@@ -1,0 +1,15 @@
+#!/bin/sh
+iplist=$(mktemp)
+service=$1
+blocklist=$2
+time=$3
+url="http://api.blocklist.de/getlast.php?time=$time&service=$service"
+
+wget $url -O $iplist
+
+while read ip
+do
+  fail2ban-client set $blocklist banip $ip
+done < $iplist
+
+rm $iplist
