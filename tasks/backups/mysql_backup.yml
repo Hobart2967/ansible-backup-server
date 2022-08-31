@@ -1,0 +1,27 @@
+---
+- name: Retrieve access data
+  set_fact:
+    user: "{{ lookup('viczem.keepass.keepass', backup.login, 'username') }}"
+    password: "{{ lookup('viczem.keepass.keepass', backup.login, 'password') }}"
+    host: "{{ lookup('viczem.keepass.keepass', backup.login, 'custom_properties', 'Hostname') }}"
+    port: "{{ lookup('viczem.keepass.keepass', backup.login, 'custom_properties', 'Port') }}"
+
+- name: Create MySQL Backup service
+  include_tasks: tasks/register-service/_register-service.yml
+  vars:
+    service:
+      name: "backup-mysql-{{ backup.name }}"
+      autostart: true
+      service:
+        environment: ''
+        type: idle
+        restart: 'no'
+        user: root
+        execStart: "/usr/bin/mysql-backup.sh {{ backup.tunnel }} {{ user }} {{ password }} {{ host }} {{ port }}"
+      install:
+        wantedBy: multi-user.target
+      unit:
+        after: 'network.target network-online.target'
+        wants: 'network-online.target'
+        description: Backup MySQL databases from {{ backup.name }}
+        startLimitIntervalSec: 0

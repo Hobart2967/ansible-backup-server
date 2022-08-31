@@ -51,7 +51,9 @@ vms: []
 trustRelationships: []
   # - 'my/keepass/entry/path'
 
-storage_backups: []
-  # - source: 'folder/subfolder/key_name'
-  #   remoteDirectory: /path/to/directory/mirrored
+backups:
+  mysql: []
+  storage: []
+    # - source: 'folder/subfolder/key_name'
+    #   remoteDirectory: /path/to/directory/mirrored
 

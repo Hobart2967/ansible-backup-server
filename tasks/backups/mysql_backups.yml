@@ -1,0 +1,15 @@
+---
+
+- name: Install MySQL Backup Script
+  ansible.builtin.template:
+    src: templates/usr/bin/mysql-backup.sh
+    dest: /usr/bin/mysql-backup.sh
+    owner: root
+    group: root
+    mode: u=rwx,g=r,o=r
+
+- name: Create MySQL Backup Services
+  include_tasks: tasks/backups/mysql_backup.yml
+  loop: "{{ backups.mysql }}"
+  loop_control:
+    loop_var: backup

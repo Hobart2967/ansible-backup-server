@@ -33,7 +33,7 @@
 
     - name: Configure Storage Backups
       include_tasks: tasks/storage_backup.yml
-      loop: "{{ storage_backups }}"
+      loop: "{{ backups.storage }}"
       loop_control:
         loop_var: backup
 
@@ -83,6 +83,9 @@
 
     - name: Register Tunnel Services
       include_tasks: tasks/tunnel-services/_tunnel-services.yml
+
+    - name: MySQL Backups
+      include_tasks: tasks/backups/mysql_backups.yml
 
     - name: Configure VirtualBox and Machines
       include_tasks: tasks/virtual-box/_virtual-box.yml
