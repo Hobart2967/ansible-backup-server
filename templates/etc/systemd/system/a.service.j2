@@ -1,0 +1,15 @@
+[Unit]
+Description={{ service.unit.description }}
+After={{ service.unit.after }}
+Wants={{ service.unit.wants }}
+StartLimitIntervalSec={{ service.unit.startLimitIntervalSec }}
+
+[Service]
+Environment="{{ service.service.environment }}"
+Type={{ service.service.type }}
+Restart={{ service.service.restart }}
+User={{ service.service.user }}
+ExecStart={{ service.service.execStart }}
+
+[Install]
+WantedBy={{ service.install.wantedBy }}

@@ -58,25 +58,29 @@
       loop_control:
         loop_var: backup
 
-    - name: Register Storage Backups
-      ansible.builtin.template:
-        src: templates/etc/systemd/system/backup.service.j2
-        dest: /etc/systemd/system/backup-{{ backup.name }}.service
-        owner: root
-        group: root
-        mode: u=rw,g=r,o=r
+    - name: Register Storage Backup Services
+      include_tasks: tasks/register-service/_register-service.yml
       loop: "{{ backup_jobs }}"
       loop_control:
         loop_var: backup
+      vars:
+        service:
+          name: "backup-{{ backup.name }}"
+          service:
+            environment: 'IS_SYSTEMD=1'
+            type: idle
+            restart: 'no'
+            user: root
+            execStart: "/backups/bin/{{ backup.name }}.sh"
+          install:
+            wantedBy: multi-user.target
+          unit:
+            after: 'network.target network-online.target'
+            wants: 'network-online.target'
+            description: backup.description
+            startLimitIntervalSec: 0
 
-    - name: Enable backup for autostart
-      ansible.builtin.command: systemctl enable backup-{{ backup.name }}
-      loop: "{{ backup_jobs }}"
-      loop_control:
-        loop_var: backup
 
-    - name: Restart System Daemon
-      ansible.builtin.command: systemctl daemon-reload
 
     - name: Configure VirtualBox and Machines
       include_tasks: tasks/virtual-box/_virtual-box.yml
