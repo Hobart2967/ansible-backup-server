@@ -99,8 +99,9 @@ mkdir -p $BACKUP_DIR
 
 delete_old_backups
 hr
-service ssh-tunnel-$1 start
+/usr/sbin/service ssh-tunnel-$1 start
+sleep 5
 backup_databases
 hr
-service ssh-tunnel-$1 stop
+/usr/sbin/service ssh-tunnel-$1 stop
 printf "All backed up!\n\n"
