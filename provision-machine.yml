@@ -65,6 +65,7 @@
         loop_var: backup
       vars:
         service:
+          autostart: true
           name: "backup-{{ backup.name }}"
           service:
             environment: 'IS_SYSTEMD=1'
@@ -80,7 +81,8 @@
             description: backup.description
             startLimitIntervalSec: 0
 
-
+    - name: Register Tunnel Services
+      include_tasks: tasks/tunnel-services/_tunnel-services.yml
 
     - name: Configure VirtualBox and Machines
       include_tasks: tasks/virtual-box/_virtual-box.yml

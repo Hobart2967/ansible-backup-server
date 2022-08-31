@@ -1,0 +1,41 @@
+---
+- name: Retrieve access data
+  set_fact:
+    user: "{{ lookup('viczem.keepass.keepass', tunnel.target, 'username') }}"
+    password: "{{ lookup('viczem.keepass.keepass', tunnel.target, 'password') }}"
+    host: "{{ lookup('viczem.keepass.keepass', tunnel.target, 'custom_properties', 'Hostname') }}"
+
+- name: Initialize final port mapping list
+  set_fact:
+    port_mapping_list: []
+
+- name: Fill port mappings
+  set_fact:
+    port_mapping_list: "{{ port_mapping_list + [ '-L 0.0.0.0:' + mapping.localPort + ':127.0.0.1:' + mapping.destinationPort ] }}"
+  loop: "{{ tunnel.mappings }}"
+  loop_control:
+    loop_var: mapping
+
+- name: Concatenate the mappings
+  set_fact:
+    port_mappings: "{{ port_mapping_list | join(' ') }}"
+
+- name: Create MySQL SSH Tunnel Service
+  include_tasks: tasks/register-service/_register-service.yml
+  vars:
+    service:
+      name: "ssh-tunnel-{{ tunnel.targetName }}"
+      autostart: false
+      service:
+        environment: ''
+        type: idle
+        restart: 'no'
+        user: root
+        execStart: "/usr/bin/ssh -NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes {{ port_mappings }} {{ user }}@{{ host }}"
+      install:
+        wantedBy: multi-user.target
+      unit:
+        after: 'network.target network-online.target'
+        wants: 'network-online.target'
+        description: Persistent SSH Tunnel
+        startLimitIntervalSec: 0

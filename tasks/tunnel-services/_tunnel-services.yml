@@ -1,0 +1,7 @@
+---
+
+- name: Create Tunnel Services
+  include_tasks: tasks/tunnel-services/tunnel-service.yml
+  loop: "{{ tunnels }}"
+  loop_control:
+    loop_var: tunnel

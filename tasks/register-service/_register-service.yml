@@ -8,6 +8,7 @@
     mode: u=rw,g=r,o=r
 
 - name: Enable backup for autostart
+  when: service.autostart == True
   ansible.builtin.command: systemctl enable {{ service.name }}
 
 - name: Restart System Daemon

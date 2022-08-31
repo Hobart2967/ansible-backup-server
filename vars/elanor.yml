@@ -41,6 +41,13 @@ mailserver:
   active: true
   relay_info: 'Servers/elanor/MailRelay'
 
+tunnels:
+  - targetName: tharja
+    target: 'Servers/tharja/main'
+    mappings:
+      - localPort: '3306'
+        destinationPort: '3306'
+
 trustRelationships:
   - 'Servers/tharja/main'
 
