@@ -40,7 +40,7 @@ python3 -m pip install --user ansible
 ### Run
 
 ```sh
-./provision-machine.sh elanor <user> keepass_file.kdbx
+./provision-machine.sh <hostname> <user> keepass_file.kdbx
 ```
 
 ## Infrastructural Dependencies
