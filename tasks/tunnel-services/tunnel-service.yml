@@ -1,9 +1,9 @@
 ---
 - name: Retrieve access data
   set_fact:
-    user: "{{ lookup('viczem.keepass.keepass', tunnel.target, 'username') }}"
-    password: "{{ lookup('viczem.keepass.keepass', tunnel.target, 'password') }}"
-    host: "{{ lookup('viczem.keepass.keepass', tunnel.target, 'custom_properties', 'Hostname') }}"
+    user: "{{ lookup('community.general.onepassword', relationship.item, field='username', vault=relationship.vault) }}"
+    password: "{{ lookup('community.general.onepassword', relationship.item, field='password', vault=relationship.vault) }}"
+    host: "{{lookup('community.general.onepassword', relationship.item, field='hostname', vault=relationship.vault) }}"
 
 - name: Initialize final port mapping list
   set_fact:

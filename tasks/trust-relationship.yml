@@ -1,10 +1,12 @@
 ---
 
+
+# ToDo: migrate to 1Password
 - name: Retrieve access data
   set_fact:
-    user: "{{ lookup('viczem.keepass.keepass', relationship, 'username') }}"
-    password: "{{ lookup('viczem.keepass.keepass', relationship, 'password') }}"
-    host: "{{ lookup('viczem.keepass.keepass', relationship, 'custom_properties', 'Hostname') }}"
+    user: "{{ secret_values[relationship.user] }}"
+    password: "{{ secret_values[relationship.password] }}"
+    host: "{{ secret_values[relationship.host] }}"
 
 - name: Create trust relationship
   ansible.builtin.command: sshpass -p '{{ password }}' ssh-copy-id -o StrictHostKeyChecking=no {{ user }}@{{ host }}

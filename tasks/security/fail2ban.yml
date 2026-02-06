@@ -1,8 +1,8 @@
 - name: Retrieve access data
   set_fact:
     fail2ban_report:
-      sender_email: "{{ lookup('viczem.keepass.keepass', security.fail2ban.report.data, 'custom_properties', 'Sender') }}"
-      destination_email: "{{ lookup('viczem.keepass.keepass', security.fail2ban.report.data, 'custom_properties', 'Destination') }}"
+      sender_email: "{{ secret_values.fail2ban_report_sender }}"
+      destination_email: "{{ secret_values.fail2ban_report_destination }}"
   when: security.fail2ban.report.active == True
 
 - name: Retrieve access data

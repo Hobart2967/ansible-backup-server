@@ -1,12 +1,8 @@
 - name: Retrieve access data
   set_fact:
-    user: "{{ lookup('viczem.keepass.keepass', backup.source, 'username') }}"
-    password: "{{ lookup('viczem.keepass.keepass', backup.source, 'password') }}"
-    host: "{{ lookup('viczem.keepass.keepass', backup.source, 'custom_properties', 'Hostname') }}"
-
-- name: Concatenate the public keys
-  set_fact:
-    exclusions: "{{ ['--exclude='] | product(backup.exclude) | map('join') | list | join(' ') }}"
+    user: "{{ secret_values[backup.source.user] }}"
+    password: "{{ secret_values[backup.source.password] }}"
+    host: "{{ secret_values[backup.source.host] }}"
 
 - name: Create backup target directory
   file:
@@ -16,7 +12,7 @@
 - name: Register backup job
   set_fact:
     new_backup_jobs:
-      - command: rsync --bwlimit=2560 --delete -auvz {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }} {{ exclusions }} --log-file=/backups/logs/{{ backup.name }}.log
+      - command: rsync --bwlimit=2560 --delete-before -avh {{backup.extraArgs}} --log-file=/backups/logs/{{ backup.name }}.log --include='**.backupignore' --exclude='/.git' --filter=':- .backupignore' {{ user }}@{{ host }}:{{ backup.remoteDirectory }} {{ backup.target }}
         description: "Storage backup {{ backup.name }}"
         name: "{{ backup.name }}"
 

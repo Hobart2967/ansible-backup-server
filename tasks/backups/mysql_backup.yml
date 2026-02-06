@@ -1,10 +1,11 @@
 ---
 - name: Retrieve access data
   set_fact:
-    user: "{{ lookup('viczem.keepass.keepass', backup.login, 'username') }}"
-    password: "{{ lookup('viczem.keepass.keepass', backup.login, 'password') }}"
-    host: "{{ lookup('viczem.keepass.keepass', backup.login, 'custom_properties', 'Hostname') }}"
-    port: "{{ lookup('viczem.keepass.keepass', backup.login, 'custom_properties', 'Port') }}"
+  # ToDo: migrate to 1Passworduser: "{{ lookup('community.general.onepassword', relationship.item, field='username', vault=relationship.vault) }}"
+    user: "{{ lookup('community.general.onepassword', backup.login.item, field='username', vault=backup.login.vault) }}"
+    password: "{{ lookup('community.general.onepassword', backup.login.item, field='password', vault=backup.login.vault) }}"
+    host: "{{lookup('community.general.onepassword', backup.login.item, field='hostname', vault=backup.login.vault) }}"
+    port: "{{lookup('community.general.onepassword', backup.login.item, field='Port', vault=backup.login.vault) }}"
 
 - name: Create MySQL Backup service
   include_tasks: tasks/register-service/_register-service.yml

@@ -9,17 +9,16 @@
     - vars/defaults.yml
     - vars/{{ machine }}.yml
 
-  vars_prompt:
-    - name: keepass_psw
-      prompt: "Enter keepass database password"
-      private: yes
-
   tasks:
-    - name: Execute Install
-      include_tasks: tasks/install.yml
+    - name: "Resolve secrets"
+      include_tasks: tasks/secrets/task.yml
+      when: secrets is defined
 
-    - name: Configure Security
-      include_tasks: tasks/security/_security.yml
+    #- name: Execute Install
+    #  include_tasks: tasks/install.yml
+#
+    #- name: Configure Security
+    #  include_tasks: tasks/security/_security.yml
 
     - name: Configure Trust Relationships
       include_tasks: tasks/trust-relationship.yml
@@ -81,14 +80,14 @@
             description: backup.description
             startLimitIntervalSec: 0
 
-    - name: Register Tunnel Services
-      include_tasks: tasks/tunnel-services/_tunnel-services.yml
+    #- name: Register Tunnel Services
+    #  include_tasks: tasks/tunnel-services/_tunnel-services.yml
 
-    - name: MySQL Backups
-      include_tasks: tasks/backups/mysql_backups.yml
+    # - name: MySQL Backups
+    #   include_tasks: tasks/backups/mysql_backups.yml
 
-    - name: Configure VirtualBox and Machines
-      include_tasks: tasks/virtual-box/_virtual-box.yml
+    # - name: Configure VirtualBox and Machines
+    #   include_tasks: tasks/virtual-box/_virtual-box.yml
 
-    - name: Configure Mail Relay
-      include_tasks: tasks/mail/postfix.yml
+    # - name: Configure Mail Relay
+    #   include_tasks: tasks/mail/postfix.yml

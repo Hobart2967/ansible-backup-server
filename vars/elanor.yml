@@ -1,13 +1,41 @@
 sudo_users:
   - hobart
-
+config:
+  secret_vault: crszcqyfk77w3ata2yczlipugi
 vms:
   - name: server1
     memory: 4096
     gpu_memory: 128
     hard_drive_path: /data/server1.vhd
     baseDirectory: /data/virtual-machines/
-
+secrets:
+  tharja_ssh_user:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'username'
+  tharja_ssh_password:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'password'
+  tharja_ssh_host:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'Hostname'
+  tharja_db_host:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'DatabaseHostname'
+  tharja_db_name:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'Database'
+  tharja_db_user:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'DatabaseUser'
+  tharja_db_password:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'DatabasePassword'
+  fail2ban_report_sender:
+    item: '7kyzw3ga6qwu2n3du6uvem5ki4'
+    field: 'Sender'
+  fail2ban_report_destination:
+    item: '7kyzw3ga6qwu2n3du6uvem5ki4'
+    field: 'Destination'
 security:
   fail2ban:
     maxretry: 3
@@ -49,32 +77,101 @@ tunnels:
         destinationPort: '3306'
 
 trustRelationships:
-  - 'Servers/tharja/main'
+  - &tharja
+    user: tharja_ssh_user
+    password: tharja_ssh_password
+    host: tharja_ssh_host
 
 backups:
   mysql:
     - name: tharja
       tunnel: tharja
-      login: 'Servers/tharja/mysql'
+      login:
+        user: tharja_ssh_user
+        password: tharja_ssh_password
+        host: tharja_ssh_host
+        db_host: tharja_db_host
+        db_user: tharja_db_user
+        db_password: tharja_db_password
+        db_port: tharja_db_port
   storage:
-    - name: PleskBackups
-      source: 'Servers/tharja/main'
-      remoteDirectory: /storage/plesk/
-      target: /backups/tharja/fs/storage/plesk
-      exclude: []
-    - name: Tools
-      source: 'Servers/tharja/main'
-      remoteDirectory: /storage/tools/
-      target: /backups/tharja/fs/storage/tools
-      exclude:
-        - '.train-spam'
-    - name: VirtualHostsFilesBackup
-      source: 'Servers/tharja/main'
-      remoteDirectory: /storage/vhosts/
-      target: /backups/tharja/fs/storage/vhosts
-      exclude:
-        - 'exchange'
-        - 'node_modules'
-        - 'pnTemp'
-        - 'logs'
-        - 'dynmap'
+    - name: de.avsn
+      source: *tharja
+      remoteDirectory: /storage/vhosts/de.avsn/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/de.avsn/
+    - name: de.avsn.hark
+      source: *tharja
+      remoteDirectory: /storage/vhosts/de.avsn.hark/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/de.avsn.hark/
+    - name: de.avsn.maps
+      source: *tharja
+      remoteDirectory: /storage/vhosts/de.avsn.maps/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/de.avsn.maps/
+    - name: de.avsn.rimworld
+      source: *tharja
+      remoteDirectory: /storage/vhosts/de.avsn.rimworld/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/de.avsn.rimworld/
+    - name: de.devforyou
+      source: *tharja
+      remoteDirectory: /storage/vhosts/de.devforyou/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/de.devforyou/
+    - name: engineer.marcoklein
+      source: *tharja
+      remoteDirectory: /storage/vhosts/engineer.marcoklein/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/engineer.marcoklein/
+    - name: net.adventurespiele
+      source: *tharja
+      remoteDirectory: /storage/vhosts/net.adventurespiele/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/net.adventurespiele/
+    - name: net.codewyre
+      source: *tharja
+      remoteDirectory: /storage/vhosts/net.codewyre/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/net.codewyre/
+    - name: net.codewyre.cloud
+      source: *tharja
+      remoteDirectory: /storage/vhosts/net.codewyre.cloud/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/net.codewyre.cloud/
+    - name: net.codewyre.monitoring
+      source: *tharja
+      remoteDirectory: /storage/vhosts/net.codewyre.monitoring/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/net.codewyre.monitoring/
+    - name: net.codewyre.ntfy
+      source: *tharja
+      remoteDirectory: /storage/vhosts/net.codewyre.ntfy/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/net.codewyre.ntfy/
+    - name: net.codewyre.planning
+      source: *tharja
+      remoteDirectory: /storage/vhosts/net.codewyre.planning/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/net.codewyre.planning/
+    - name: online.sone
+      source: *tharja
+      remoteDirectory: /storage/vhosts/online.sone/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/vhosts/online.sone/
+    - name: mail
+      source: *tharja
+      remoteDirectory: /storage/mail/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/storage/mail/
+    - name: bind
+      source: *tharja
+      remoteDirectory: /etc/bind/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/etc/bind/
+    - name: letsencrypt
+      source: *tharja
+      remoteDirectory: /etc/letsencrypt/
+      extraArgs: '--rsync-path="sudo rsync"'
+      target: /backups/tharja-v2/etc/letsencrypt/
