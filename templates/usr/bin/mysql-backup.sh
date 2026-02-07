@@ -11,18 +11,23 @@
 #RESTORE FROM BACKUP
   #$ gunzip < [backupfile.sql.gz] | mysql -u [uname] -p[pass] [dbname]
 
+if [ $# -ne 6 ]; then
+  echo "Usage: $0 <tunnel-name> <mysql-username> <mysql-password> <mysql-host> <mysql-port> <backup-directory>"
+  exit 1
+fi
+
 #==============================================================================
 # CUSTOM SETTINGS
 #==============================================================================
-
-# directory to put the backup files
-BACKUP_DIR=/backups/$1/mysql
 
 # MYSQL Parameters
 MYSQL_UNAME=$2
 MYSQL_PWORD=$3
 MYSQL_HOST=$4
 MYSQL_PORT=$5
+
+# directory to put the backup files
+BACKUP_DIR=$6
 
 # Don't backup databases with these names
 # Example: starts with mysql (^mysql) or ends with _schema (_schema$)
@@ -45,6 +50,7 @@ function delete_old_backups()
 {
   echo "Deleting $BACKUP_DIR/*.sql.gz older than $KEEP_BACKUPS_FOR days"
   find $BACKUP_DIR -type f -name "*.sql.gz" -mtime +$KEEP_BACKUPS_FOR -exec rm {} \;
+  echo "Done cleaning up."
 }
 
 function mysql_login() {
@@ -95,13 +101,18 @@ function hr(){
 # RUN SCRIPT
 #==============================================================================
 
+
 mkdir -p $BACKUP_DIR
 
 delete_old_backups
 hr
+echo "Creating SSH tunnel for connections to ${MYSQL_HOST}:${MYSQL_PORT}..."
 /usr/sbin/service ssh-tunnel-$1 start
+echo "Established!"
 sleep 5
+echo "Initializing backup"
 backup_databases
+echo "Done backing up, closing tunnel"
 hr
 /usr/sbin/service ssh-tunnel-$1 stop
 printf "All backed up!\n\n"

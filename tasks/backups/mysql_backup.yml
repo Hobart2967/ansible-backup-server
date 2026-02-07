@@ -1,11 +1,10 @@
 ---
 - name: Retrieve access data
   set_fact:
-  # ToDo: migrate to 1Passworduser: "{{ lookup('community.general.onepassword', relationship.item, field='username', vault=relationship.vault) }}"
-    user: "{{ lookup('community.general.onepassword', backup.login.item, field='username', vault=backup.login.vault) }}"
-    password: "{{ lookup('community.general.onepassword', backup.login.item, field='password', vault=backup.login.vault) }}"
-    host: "{{lookup('community.general.onepassword', backup.login.item, field='hostname', vault=backup.login.vault) }}"
-    port: "{{lookup('community.general.onepassword', backup.login.item, field='Port', vault=backup.login.vault) }}"
+    user: "{{ secret_values[backup.login.db_user] }}"
+    password: "{{ secret_values[backup.login.db_password] }}"
+    host: "{{ backup.login.db_host }}"
+    port: "{{ backup.login.db_port }}"
 
 - name: Create MySQL Backup service
   include_tasks: tasks/register-service/_register-service.yml
@@ -18,7 +17,7 @@
         type: idle
         restart: 'no'
         user: root
-        execStart: "/usr/bin/mysql-backup.sh {{ backup.tunnel }} {{ user }} {{ password }} {{ host }} {{ port }}"
+        execStart: "/usr/bin/mysql-backup.sh {{ backup.tunnel }} {{ user }} '{{ password }}' 127.0.0.1 3306 {{ backup.target }}"
       install:
         wantedBy: multi-user.target
       unit:

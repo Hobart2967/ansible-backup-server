@@ -21,6 +21,9 @@ secrets:
   tharja_db_host:
     item: 'bwalqyrkfdgpppd7ufj7n5pofu'
     field: 'DatabaseHostname'
+  tharja_db_port:
+    item: 'bwalqyrkfdgpppd7ufj7n5pofu'
+    field: 'DatabasePort'
   tharja_db_name:
     item: 'bwalqyrkfdgpppd7ufj7n5pofu'
     field: 'Database'
@@ -69,31 +72,33 @@ mailserver:
   active: true
   relay_info: 'Servers/elanor/MailRelay'
 
-tunnels:
-  - targetName: tharja
-    target: 'Servers/tharja/main'
-    mappings:
-      - localPort: '3306'
-        destinationPort: '3306'
-
 trustRelationships:
   - &tharja
     user: tharja_ssh_user
     password: tharja_ssh_password
     host: tharja_ssh_host
 
+tunnels:
+  - targetName: tharja
+    target: *tharja
+    mappings:
+      - localPort: &mysql_tunnel_port '3306'
+        destinationPort: tharja_db_port
+        destinationIp: tharja_db_host
+
 backups:
   mysql:
-    - name: tharja
+    - name: net.adventurespiele_usr_web1_1
       tunnel: tharja
+      target: /backups/tharja-v2/mysql/net.adventurespiele_usr_web1_1/
       login:
         user: tharja_ssh_user
         password: tharja_ssh_password
         host: tharja_ssh_host
-        db_host: tharja_db_host
+        db_host: 127.0.0.1
+        db_port: *mysql_tunnel_port
         db_user: tharja_db_user
         db_password: tharja_db_password
-        db_port: tharja_db_port
   storage:
     - name: de.avsn
       source: *tharja

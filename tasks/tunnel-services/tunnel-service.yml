@@ -1,9 +1,9 @@
 ---
 - name: Retrieve access data
   set_fact:
-    user: "{{ lookup('community.general.onepassword', relationship.item, field='username', vault=relationship.vault) }}"
-    password: "{{ lookup('community.general.onepassword', relationship.item, field='password', vault=relationship.vault) }}"
-    host: "{{lookup('community.general.onepassword', relationship.item, field='hostname', vault=relationship.vault) }}"
+    user: "{{ secret_values[tunnel.target.user] }}"
+    password: "{{  secret_values[tunnel.target.password] }}"
+    host: "{{ secret_values[tunnel.target.host] }}"
 
 - name: Initialize final port mapping list
   set_fact:
@@ -11,7 +11,7 @@
 
 - name: Fill port mappings
   set_fact:
-    port_mapping_list: "{{ port_mapping_list + [ '-L 0.0.0.0:' + mapping.localPort + ':127.0.0.1:' + mapping.destinationPort ] }}"
+    port_mapping_list: "{{ port_mapping_list + [ '-L 0.0.0.0:' + mapping.localPort + ':' + secret_values[mapping.destinationIp] + ':' + secret_values[mapping.destinationPort] ] }}"
   loop: "{{ tunnel.mappings }}"
   loop_control:
     loop_var: mapping
