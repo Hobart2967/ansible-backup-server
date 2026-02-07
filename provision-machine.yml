@@ -16,7 +16,7 @@
 
     #- name: Execute Install
     #  include_tasks: tasks/install.yml
-#
+
     #- name: Configure Security
     #  include_tasks: tasks/security/_security.yml
 
@@ -46,6 +46,10 @@
         path: "/backups/logs"
         state: directory
 
+    - name: Resolve backup ntfy ntfy_token
+      set_fact:
+        ntfy_token: "{{ secret_values[backups_ntfy_token] }}"
+
     - name: Register Storage Backup Scripts
       ansible.builtin.template:
         src: templates/backups/bin/backup.sh.j2
@@ -69,14 +73,14 @@
           service:
             environment: 'IS_SYSTEMD=1'
             type: idle
-            restart: 'no'
+            restart: 'on-failure'
             user: root
             execStart: "/backups/bin/{{ backup.name }}.sh"
           install:
             wantedBy: multi-user.target
           unit:
-            after: 'network.target network-online.target'
-            wants: 'network-online.target'
+            after: 'network.target network-online.target systemd-networkd-wait-online.service'
+            requires: 'systemd-networkd-wait-online.service'
             description: backup.description
             startLimitIntervalSec: 0
 
@@ -89,5 +93,5 @@
     # - name: Configure VirtualBox and Machines
     #   include_tasks: tasks/virtual-box/_virtual-box.yml
 
-    # - name: Configure Mail Relay
-    #   include_tasks: tasks/mail/postfix.yml
+    - name: Configure Mail Relay
+      include_tasks: tasks/mail/postfix.yml

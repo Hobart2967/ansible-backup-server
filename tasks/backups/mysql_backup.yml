@@ -17,7 +17,7 @@
         type: idle
         restart: 'no'
         user: root
-        execStart: "/usr/bin/mysql-backup.sh {{ backup.tunnel }} {{ user }} '{{ password }}' 127.0.0.1 3306 {{ backup.target }}"
+        execStart: "/usr/bin/mysql-backup.sh {{ backup.tunnel }} {{ user }} '{{ password }}' 127.0.0.1 3306 {{ backup.target }} /backups/logs '{{ backup.name }}' '{{ ntfy_token }}'"
       install:
         wantedBy: multi-user.target
       unit:

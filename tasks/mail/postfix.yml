@@ -1,10 +1,10 @@
 - name: Retrieve access data
   set_fact:
     mailserver_relay:
-      user: "{{ lookup('viczem.keepass.keepass', mailserver.relay_info, 'username') }}"
-      password: "{{ lookup('viczem.keepass.keepass', mailserver.relay_info, 'password') }}"
-      host: "{{ lookup('viczem.keepass.keepass', mailserver.relay_info, 'custom_properties', 'Hostname') }}"
-      port: "{{ lookup('viczem.keepass.keepass', mailserver.relay_info, 'custom_properties', 'Port') }}"
+      user: "{{ secret_values[mailserver.relay_info.username] }}"
+      password: "{{ secret_values[mailserver.relay_info.password] }}"
+      host: "{{ secret_values[mailserver.relay_info.host] }}"
+      port: "{{ secret_values[mailserver.relay_info.port] }}"
   when: mailserver.active == True
 
 - name: Set up Relay Host in Postfix

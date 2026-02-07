@@ -5,7 +5,28 @@ main() {
     return;
   fi
 
-  {{ backup.command }}
+  curl -X POST \
+    -H "Authorization: Bearer {{ ntfy_token }}" \
+    -H "Title: Starting Backup {{ backup.name }}..." \
+    -d "Backup started at $(date)" \
+    https://ntfy.codewyre.net/backups
+
+  {{ backup.command }} || exit_status=$?
+
+  if [ -n "$exit_status" ]; then
+    MESSAGE="Backup {{ backup.name }} failed with exit status $exit_status"
+  else
+    MESSAGE="Backup {{ backup.name }} completed successfully"
+  fi
+
+  # Send message push to https://ntfy.codewyre.net/backups with token auth
+  curl -X POST \
+    -H "Authorization: Bearer {{ ntfy_token }}" \
+    -H "Title: Backup {{ backup.name }} completed with exit code ${exit_status}" \
+    -d "$MESSAGE" \
+    https://ntfy.codewyre.net/backups
+
+  exit "${exit_status:-0}"
 }
 
 main

@@ -1,13 +1,24 @@
 [Unit]
 Description={{ service.unit.description }}
+{% if 'after' in service.unit %}
 After={{ service.unit.after }}
+{% endif %}
+{% if 'wants' in service.unit %}
 Wants={{ service.unit.wants }}
+{% endif %}
+{% if 'requires' in service.unit %}
+Requires={{ service.unit.requires }}
+{% endif %}
+{% if 'startLimitIntervalSec' in service.unit %}
 StartLimitIntervalSec={{ service.unit.startLimitIntervalSec }}
+{% endif %}
+StartLimitBurst=5
 
 [Service]
 Environment="{{ service.service.environment }}"
 Type={{ service.service.type }}
 Restart={{ service.service.restart }}
+RestartSec=5s
 User={{ service.service.user }}
 ExecStart={{ service.service.execStart }}
 

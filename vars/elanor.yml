@@ -39,6 +39,21 @@ secrets:
   fail2ban_report_destination:
     item: '7kyzw3ga6qwu2n3du6uvem5ki4'
     field: 'Destination'
+  mailrelay_user:
+    item: '47soprwj6farogff3czbmgykgi'
+    field: 'username'
+  mailrelay_password:
+    item: '47soprwj6farogff3czbmgykgi'
+    field: 'password'
+  mailrelay_mailserver:
+    item: '47soprwj6farogff3czbmgykgi'
+    field: 'mailserver'
+  mailrelay_port:
+    item: '47soprwj6farogff3czbmgykgi'
+    field: 'port'
+  ntfy_token:
+    item: 'h7w3mo66qvh7balnhb35c5o6se'
+    field: 'access_token'
 security:
   fail2ban:
     maxretry: 3
@@ -70,7 +85,13 @@ security:
 
 mailserver:
   active: true
-  relay_info: 'Servers/elanor/MailRelay'
+  relay_info:
+    username: mailrelay_user
+    password: mailrelay_password
+    host: mailrelay_mailserver
+    port: mailrelay_port
+
+backups_ntfy_token: ntfy_token
 
 trustRelationships:
   - &tharja
