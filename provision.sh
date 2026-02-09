@@ -2,7 +2,7 @@
 
 main () {
   if [ "$#" -ne 2 ]; then
-    echo "Illegal number of parameters. Usage: ./provision.sh <ip> <user> <keePassKdbxFile>"
+    echo "Illegal number of parameters. Usage: ./provision.sh <ip> <user>"
     return
   fi
 
@@ -13,7 +13,6 @@ main () {
 
 
 DIR=$(pwd)
-setup
 
 cd $DIR
 main "$@"

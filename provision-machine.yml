@@ -14,11 +14,11 @@
       include_tasks: tasks/secrets/task.yml
       when: secrets is defined
 
-    #- name: Execute Install
-    #  include_tasks: tasks/install.yml
+    - name: Execute Install
+      include_tasks: tasks/install.yml
 
-    #- name: Configure Security
-    #  include_tasks: tasks/security/_security.yml
+    - name: Configure Security
+      include_tasks: tasks/security/_security.yml
 
     - name: Configure Trust Relationships
       include_tasks: tasks/trust-relationship.yml
@@ -29,6 +29,25 @@
     - name: Initialize backup jobs
       set_fact:
         backup_jobs: []
+
+    - name: Initialize Services to wait for before powering off
+      set_fact:
+        power_off_blocking_services: "{{ (backups.mysql | map(attribute='name') | map('regex_replace', '^(.*)$', 'backup-myql-\\1') | list) + (backups.storage | map(attribute='name')  | map('regex_replace', '^(.*)$', 'backup-\\1') | list) }}"
+
+    - name: Register Shutdown Check Script
+      ansible.builtin.template:
+        src: templates/backups/bin/shutdown-check.sh.j2
+        dest: /backups/bin/shutdown-check.sh
+        owner: root
+        group: root
+        mode: u=rwx,g=r,o=r
+
+    - name: Register Cronjob every 60 minutes to run shutdown check
+      ansible.builtin.cron:
+        name: "Shutdown Check"
+        user: root
+        minute: "*/1"
+        job: "/backups/bin/shutdown-check.sh"
 
     - name: Configure Storage Backups
       include_tasks: tasks/storage_backup.yml
@@ -90,8 +109,8 @@
     - name: MySQL Backups
       include_tasks: tasks/backups/mysql_backups.yml
 
-    # - name: Configure VirtualBox and Machines
-    #   include_tasks: tasks/virtual-box/_virtual-box.yml
-
     - name: Configure Mail Relay
       include_tasks: tasks/mail/postfix.yml
+
+    # - name: Configure VirtualBox and Machines
+    #   include_tasks: tasks/virtual-box/_virtual-box.yml

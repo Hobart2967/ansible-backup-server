@@ -1,0 +1,46 @@
+#!/bin/bash
+SERVICES_TO_CHECK="{% for service in power_off_blocking_services %}{{ service }} {% endfor %}"
+
+log() {
+  echo $1
+  echo "[$(date +%F-%T)] $1" >> /var/log/shutdown-check.log
+}
+
+# Check if all services have exited successfully before allowing shutdown and not failed
+for service in $SERVICES_TO_CHECK; do
+  echo "Checking status of service $service..."
+  systemctl is-active --quiet $service
+  active_status=$?
+  systemctl is-failed --quiet $service
+  failed_status=$?
+
+  echo "Service $service active status: $active_status, failed status: $failed_status"
+
+  if [[ $active_status -eq 0 ]]; then
+    log "Service $service is still active. Not shutting down."
+    exit 1
+  fi
+
+  if [[ $failed_status -eq 0 ]]; then
+    log "Service $service has failed. Not shutting down."
+    exit 1
+  fi
+done
+
+# Check if there's currently users logged in, if so, abort shutdown and log users found
+if who | grep -q .; then
+  log "There are currently users logged in. Not shutting down."
+  log "--- Logged in users: $(who)"
+  exit 1
+fi
+
+# Check if there's SSH sessions active, if so, abort shutdown
+if netstat -tnpa | grep -q 'ESTABLISHED.*sshd'; then
+  log "There are currently SSH sessions active. Not shutting down."
+  log "--- Active SSH sessions: $(netstat -tnpa | grep 'ESTABLISHED.*sshd')"
+  exit 1
+fi
+
+log "All checks passed. Allowing shutdown."
+/sbin/shutdown -h now
+exit 0
