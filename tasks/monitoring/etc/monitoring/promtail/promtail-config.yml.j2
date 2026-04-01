@@ -1,0 +1,92 @@
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://192.168.178.202:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: local
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: boot
+          __path__: /var/log/boot.log*
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: auth
+          __path__: /var/log/auth.log*
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: dmesg
+          __path__: /var/log/dmesg*
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: dpkg
+          __path__: /var/log/dpkg.log*
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: kernel
+          __path__: /var/log/kern.log*
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: sys
+          __path__: /var/log/syslog*
+
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: apt-history
+          __path__: /var/log/apt/history.log*
+
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: apt-term
+          __path__: /var/log/apt/term.log*
+
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: shutdown-check
+          __path__: /var/log/shutdown-check.log*
+
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: backups
+          __path__: /backups/logs/*.log
+
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: db-backups
+          __path__: /backups/logs/mysql-*.txt
+      - targets:
+          - localhost
+        labels:
+          host: elanor
+          job: docker_logs
+          __path__: /var/lib/docker/containers/*/*-json.log
+
+# Custom Log Files

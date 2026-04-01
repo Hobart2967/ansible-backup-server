@@ -10,107 +10,140 @@
     - vars/{{ machine }}.yml
 
   tasks:
-    - name: "Resolve secrets"
-      include_tasks: tasks/secrets/task.yml
-      when: secrets is defined
+    # - name: "Resolve secrets"
+    #   include_tasks: tasks/secrets/task.yml
+    #   when: secrets is defined
 
-    - name: Execute Install
-      include_tasks: tasks/install.yml
+    # # - name: Execute Install
+    # #   include_tasks: tasks/install.yml
 
-    - name: Configure Security
-      include_tasks: tasks/security/_security.yml
+    # - name: Configure Docker
+    #   include_tasks: tasks/docker/task.yml
 
-    - name: Configure Trust Relationships
-      include_tasks: tasks/trust-relationship.yml
-      loop: "{{ trustRelationships }}"
-      loop_control:
-        loop_var: relationship
+    # - name: Configure Monitoring
+    #   include_tasks: tasks/monitoring/task.yml
 
-    - name: Initialize backup jobs
-      set_fact:
-        backup_jobs: []
+    # - name: Configure Security
+    #   include_tasks: tasks/security/_security.yml
 
-    - name: Initialize Services to wait for before powering off
-      set_fact:
-        power_off_blocking_services: "{{ (backups.mysql | map(attribute='name') | map('regex_replace', '^(.*)$', 'backup-myql-\\1') | list) + (backups.storage | map(attribute='name')  | map('regex_replace', '^(.*)$', 'backup-\\1') | list) }}"
+    # - name: Configure Trust Relationships
+    #   include_tasks: tasks/trust-relationship.yml
+    #   loop: "{{ trustRelationships }}"
+    #   loop_control:
+    #     loop_var: relationship
 
-    - name: Register Shutdown Check Script
+    # - name: Initialize backup jobs
+    #   set_fact:
+    #     backup_jobs: []
+
+    # - name: Initialize Services to wait for before powering off
+    #   set_fact:
+    #     power_off_blocking_services: "{{ (backups.mysql | map(attribute='name') | map('regex_replace', '^(.*)$', 'backup-myql-\\1') | list) + (backups.storage | map(attribute='name')  | map('regex_replace', '^(.*)$', 'backup-\\1') | list) }}"
+
+    # - name: Register Shutdown Check Script
+    #   ansible.builtin.template:
+    #     src: templates/backups/bin/shutdown-check.sh.j2
+    #     dest: /backups/bin/shutdown-check.sh
+    #     owner: root
+    #     group: root
+    #     mode: u=rwx,g=r,o=r
+
+    - name: Register Print Check Script
       ansible.builtin.template:
-        src: templates/backups/bin/shutdown-check.sh.j2
-        dest: /backups/bin/shutdown-check.sh
+        src: templates/backups/bin/print.sh.j2
+        dest: /backups/bin/print.sh
         owner: root
         group: root
         mode: u=rwx,g=r,o=r
-
-    - name: Register Cronjob every 60 minutes to run shutdown check
-      ansible.builtin.cron:
-        name: "Shutdown Check"
-        user: root
-        minute: "*/1"
-        job: "/backups/bin/shutdown-check.sh"
-
-    - name: Configure Storage Backups
-      include_tasks: tasks/storage_backup.yml
-      loop: "{{ backups.storage }}"
-      loop_control:
-        loop_var: backup
-
-    - name: Create backup target directory
-      file:
-        path: "/backups/bin"
-        state: directory
-
-    - name: Create backup target directory
-      file:
-        path: "/backups/logs"
-        state: directory
-
-    - name: Resolve backup ntfy ntfy_token
-      set_fact:
-        ntfy_token: "{{ secret_values[backups_ntfy_token] }}"
-
-    - name: Register Storage Backup Scripts
-      ansible.builtin.template:
-        src: templates/backups/bin/backup.sh.j2
-        dest: /backups/bin/{{ backup.name }}.sh
-        owner: root
-        group: root
-        mode: u=rwx,g=r,o=r
-      loop: "{{ backup_jobs }}"
-      loop_control:
-        loop_var: backup
-
-    - name: Register Storage Backup Services
+    - name: Register service for print check Script
       include_tasks: tasks/register-service/_register-service.yml
-      loop: "{{ backup_jobs }}"
-      loop_control:
-        loop_var: backup
       vars:
         service:
           autostart: true
-          name: "backup-{{ backup.name }}"
+          name: "keep-printer-wet"
           service:
             environment: 'IS_SYSTEMD=1'
             type: idle
             restart: 'on-failure'
             user: root
-            execStart: "/backups/bin/{{ backup.name }}.sh"
+            execStart: "/backups/bin/print.sh"
           install:
             wantedBy: multi-user.target
           unit:
             after: 'network.target network-online.target systemd-networkd-wait-online.service'
             requires: 'systemd-networkd-wait-online.service'
-            description: backup.description
+            description: "Keep Printer Wet"
             startLimitIntervalSec: 0
 
-    - name: Register Tunnel Services
-      include_tasks: tasks/tunnel-services/_tunnel-services.yml
+    # - name: Register Cronjob every 60 minutes to run shutdown check
+    #   ansible.builtin.cron:
+    #     name: "Shutdown Check"
+    #     user: root
+    #     minute: "*/1"
+    #     job: "/backups/bin/shutdown-check.sh"
 
-    - name: MySQL Backups
-      include_tasks: tasks/backups/mysql_backups.yml
+    # - name: Configure Storage Backups
+    #   include_tasks: tasks/storage_backup.yml
+    #   loop: "{{ backups.storage }}"
+    #   loop_control:
+    #     loop_var: backup
 
-    - name: Configure Mail Relay
-      include_tasks: tasks/mail/postfix.yml
+    # - name: Create backup target directory
+    #   file:
+    #     path: "/backups/bin"
+    #     state: directory
+
+    # - name: Create backup target directory
+    #   file:
+    #     path: "/backups/logs"
+    #     state: directory
+
+    # - name: Resolve backup ntfy ntfy_token
+    #   set_fact:
+    #     ntfy_token: "{{ secret_values[backups_ntfy_token] }}"
+
+    # - name: Register Storage Backup Scripts
+    #   ansible.builtin.template:
+    #     src: templates/backups/bin/backup.sh.j2
+    #     dest: /backups/bin/{{ backup.name }}.sh
+    #     owner: root
+    #     group: root
+    #     mode: u=rwx,g=r,o=r
+    #   loop: "{{ backup_jobs }}"
+    #   loop_control:
+    #     loop_var: backup
+
+    # - name: Register Storage Backup Services
+    #   include_tasks: tasks/register-service/_register-service.yml
+    #   loop: "{{ backup_jobs }}"
+    #   loop_control:
+    #     loop_var: backup
+    #   vars:
+    #     service:
+    #       autostart: true
+    #       name: "backup-{{ backup.name }}"
+    #       service:
+    #         environment: 'IS_SYSTEMD=1'
+    #         type: idle
+    #         restart: 'on-failure'
+    #         user: root
+    #         execStart: "/backups/bin/{{ backup.name }}.sh"
+    #       install:
+    #         wantedBy: multi-user.target
+    #       unit:
+    #         after: 'network.target network-online.target systemd-networkd-wait-online.service'
+    #         requires: 'systemd-networkd-wait-online.service'
+    #         description: backup.description
+    #         startLimitIntervalSec: 0
+
+    # - name: Register Tunnel Services
+    #   include_tasks: tasks/tunnel-services/_tunnel-services.yml
+
+    # - name: MySQL Backups
+    #   include_tasks: tasks/backups/mysql_backups.yml
+
+    # - name: Configure Mail Relay
+    #   include_tasks: tasks/mail/postfix.yml
 
     # - name: Configure VirtualBox and Machines
     #   include_tasks: tasks/virtual-box/_virtual-box.yml

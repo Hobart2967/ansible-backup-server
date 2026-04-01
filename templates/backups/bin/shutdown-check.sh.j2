@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVICES_TO_CHECK="{% for service in power_off_blocking_services %}{{ service }} {% endfor %}"
+SERVICES_TO_CHECK="keep-printer-wet {% for service in power_off_blocking_services %}{{ service }} {% endfor %}"
 
 log() {
   echo $1

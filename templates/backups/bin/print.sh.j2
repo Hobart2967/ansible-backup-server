@@ -1,0 +1,102 @@
+#!/bin/sh
+# # 0) Install cups and check for printers on network:
+# sudo apt install cups && sudo lpinfo -v
+# # 1) Make sure CUPS is running
+# sudo systemctl enable --now cups
+#
+# # 2) Add printer (name can be anything without spaces)
+# sudo lpadmin -p Canon_TS9500 -E \
+#   -v 'ipps://Canon%20TS9500%20series._ipps._tcp.local/' \
+#   -m everywhere
+#
+# # 3) Set as default (optional)
+# lpoptions -d Canon_TS9500
+#
+# # 4) Print CUPS test page
+# lp -d Canon_TS9500 /usr/share/cups/data/testprint
+#
+# # 5) Check status/queue
+# lpstat -t
+#
+
+STATE_FILE="${TMPDIR:-/tmp}/backup-print.last_execution"
+CHECK_INTERVAL_SECONDS=60
+MAX_PENDING_MINUTES=5
+MAX_ATTEMPTS=3
+PRINTER_NAME="Canon_TS9500"
+
+log() {
+  echo "$1"
+  echo "[$(date +%F-%T)] $1" >> /var/log/keep-printer-wet.log
+}
+
+if echo "$*" | grep -q -- '--force'; then
+  log "Force flag detected. Ignoring recent execution check and attempting to print."
+  rm -f "$STATE_FILE"
+fi
+
+has_recent_execution() {
+  [ -f "$STATE_FILE" ] || return 1
+  find "$STATE_FILE" -mtime -4 >/dev/null 2>&1
+}
+
+queue_has_failure() {
+  lpstat -t 2>&1 | grep -qiE 'failed|error|stopped|disabled|not accepting'
+}
+
+queue_has_pending_jobs() {
+  lpstat -t 2>&1 | grep -qE "^$PRINTER_NAME-[0-9]+"
+}
+
+wait_for_queue_result() {
+  checks=0
+  while [ "$checks" -lt "$MAX_PENDING_MINUTES" ]; do
+    if queue_has_failure; then
+      log "Print job failed or printer is in error state."
+      return 1
+    fi
+
+    if ! queue_has_pending_jobs; then
+      log "Print job completed successfully."
+      return 0
+    fi
+
+    log "Print job is still pending. Checking again in $CHECK_INTERVAL_SECONDS seconds..."
+
+    sleep "$CHECK_INTERVAL_SECONDS"
+    checks=$((checks + 1))
+  done
+
+  return 1
+}
+
+
+main() {
+  if has_recent_execution; then
+    log "A print job was executed recently at $(date -r "$STATE_FILE"). Skipping to avoid spamming the printer."
+    exit 1
+  fi
+
+  log "Starting backup print job at $(date)."
+  touch "$STATE_FILE"
+
+  attempt=1
+  while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
+    log "Attempt $attempt of $MAX_ATTEMPTS: Printing keep-wet page..."
+    if lp -d "$PRINTER_NAME" /usr/share/cups/data/testprint >/dev/null 2>&1 && wait_for_queue_result; then
+      log "Attempt $attempt of $MAX_ATTEMPTS: Printing keep-wet page succeeded."
+      exit 0
+    fi
+
+    log "Attempt $attempt of $MAX_ATTEMPTS: Printing keep-wet page failed. Retrying in $CHECK_INTERVAL_SECONDS seconds..."
+    if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+      sleep "$CHECK_INTERVAL_SECONDS"
+    fi
+
+    attempt=$((attempt + 1))
+  done
+
+  exit 3
+}
+
+main

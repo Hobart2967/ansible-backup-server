@@ -1,0 +1,17 @@
+---
+
+- name: "Get montoring container info and register to containers"
+  community.docker.docker_container_info:
+    name: "{{item}}"
+  register: monitoring_container_info_list
+  with_items:
+    - loki
+    - prometheus
+    - grafana
+    - promtail
+    - node_exporter
+
+- name: "Set container info dictionary"
+  set_fact:
+    monitoring_container_info: "{{ monitoring_container_info|default({}) | combine( {item.item: item.container} ) }}"
+  with_items: "{{ monitoring_container_info_list.results }}"

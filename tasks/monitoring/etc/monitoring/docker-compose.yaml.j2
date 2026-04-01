@@ -1,0 +1,26 @@
+
+services:
+  node_exporter:
+    container_name: node_exporter
+    command:
+    - --path.rootfs=/rootfs
+    image: prom/node-exporter:latest
+    pid: host
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+    - /:/rootfs:ro,rslave
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:2.9.8
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/log:/var/log  #map the log folder.
+      - /backups/logs/:/backups/logs/
+      - ./promtail:/etc/promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/promtail-config.yml
+volumes:
+  dataprometheus:
+  datagrafana:

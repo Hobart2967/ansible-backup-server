@@ -1,0 +1,58 @@
+
+- name: "Create monitoring user"
+  become: true
+  ansible.builtin.user:
+    name: "monitoring"
+    comment: "User for monitoring with grafana, etc."
+    shell: /bin/zsh
+    create_home: true
+    home: /etc/monitoring
+    state: present
+    append: yes
+    groups: "docker"
+
+- name: "Ensure monitoring directory is owned by vhost user"
+  become: true
+  ansible.builtin.file:
+    path: /etc/monitoring
+    state: directory
+    mode: '0755'
+    owner: "monitoring"
+    group: "monitoring"
+
+- name: Create directory /etc/monitoring
+  become: true
+  ansible.builtin.file:
+    path: /etc/monitoring
+    state: directory
+    mode: '0755'
+    owner: "monitoring"
+    group: "monitoring"
+
+- name: Update or create docker compose configuration
+  become: true
+  ansible.builtin.template:
+    src: tasks/monitoring/etc/monitoring/docker-compose.yaml.j2
+    dest: /etc/monitoring/docker-compose.yaml
+    mode: '0644'
+    owner: "monitoring"
+    group: "monitoring"
+
+- name: "Create and start services: Monitoring"
+  become_user: "monitoring"
+  become_method: sudo
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: /etc/monitoring/
+
+- name: Get Monitoring container info
+  include_tasks: shared/monitoring/get-info/task.yml
+
+- name: Configure promtail
+  become: true
+  ansible.builtin.template:
+    src: tasks/monitoring/etc/monitoring/promtail/promtail-config.yml.j2
+    dest: /etc/monitoring/promtail/promtail-config.yml
+    mode: '0644'
+    owner: "monitoring"
+    group: "monitoring"
